@@ -9,6 +9,8 @@ A concept is an idea or analysis worth keeping that nobody has committed to buil
 
 The point is continuity. A concept is useful only if someone who has never seen the original conversation can read it and continue from where it stopped. Write for that reader: concrete findings, numbers, file and data paths, and a clear next step, rather than a transcript of what was said.
 
+Concept files belong in git. After capturing, updating or closing one, offer to commit it: an uncommitted file exists only in the current checkout, so other worktrees and sessions would not see it. Large data and analysis outputs stay out of git; link their location from "What we know" instead.
+
 ## Statuses
 
 - `exploring`: being analysed now, or expected to be soon.

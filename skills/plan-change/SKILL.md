@@ -102,6 +102,8 @@ When the user approves, set the overview to `status: todo`.
 
 End with the plan folder path, the stage list with each stage's status and blockers, any concept files written or updated, and how to start implementing, for example: "implement stage 01 of agent-docs/plans/03-cloud-mask-v2".
 
+Offer to commit the plan folder and any concept files before implementation starts. Uncommitted files exist only in the current checkout, so other worktrees, branches and sessions would not see the plan. Later, each stage's status change belongs in the same commit as that stage's code, so `status: done` and the code that made it true land together.
+
 ## Templates
 
 ### 00-overview.md
@@ -146,12 +148,12 @@ If no data is involved: one line saying why.
 - <risk> (mitigation: ...)
 
 ## Stages
-The status in each stage file's frontmatter is the source of truth; keep this table in sync with it.
+Statuses live only in each stage file's frontmatter. They are not repeated here, so branches working on different stages in parallel don't conflict on this file.
 
-| # | Stage | Status | Blocked by |
-|---|-------|--------|------------|
-| 01 | [<title>](01-<slug>.md) | todo | – |
-| 02 | [<title>](02-<slug>.md) | todo | 01 |
+| # | Stage | Blocked by |
+|---|-------|------------|
+| 01 | [<title>](01-<slug>.md) | – |
+| 02 | [<title>](02-<slug>.md) | 01 |
 
 ## Review log
 - YYYY-MM-DD skeptic: N findings (applied: ..., rejected: ... because ...)
