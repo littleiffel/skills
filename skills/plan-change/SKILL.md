@@ -1,6 +1,6 @@
 ---
 name: plan-change
-description: Plan a software change (a new feature, processing step or data product, a fix, a migration) before any code is written. Grill the user until every decision is settled, including how output quality will be measured when the change affects data, write a staged plan to agent-docs/plans/NN-slug/ (00-overview.md plus numbered stage files with todo/in-progress/done/cancelled status), then have two reviewer subagents (a skeptic and an engineer) critique it before the user approves. Use this whenever the user wants to plan, scope, spec, design or write a PRD for a feature or change, says things like "let's plan X", "grill me on this", "plan this before we build it" or "break this into stages", or describes work too big to just start coding, even if they never say "plan". Not for implementing an existing plan.
+description: Plan a software change (a new feature, processing step or data product, a fix, a migration) before any code is written. Grill the user until every decision is settled, including how output quality will be measured when the change affects data, write a staged plan to agent-docs/plans/NN-slug/ (00-overview.md plus numbered stage files with todo/in-progress/done/cancelled status), then have two reviewer subagents (a skeptic and an engineer) critique it before the user approves. Ideas that don't belong in the change are parked as concepts in agent-docs/concepts/. Use this whenever the user wants to plan, scope, spec, design or write a PRD for a feature or change, says things like "let's plan X", "grill me on this", "plan this before we build it" or "break this into stages", or describes work too big to just start coding, even if they never say "plan". Not for implementing an existing plan.
 ---
 
 # Plan a change
@@ -24,11 +24,14 @@ agent-docs/plans/
 - Stage files are numbered in the order they should be implemented.
 - Statuses live in each file's frontmatter, so anyone (human or agent) can see progress at a glance and the implementation step can pick the next `todo` stage whose blockers are `done`.
 
+Ideas that come up while planning but aren't part of this change go to `agent-docs/concepts/NN-slug.md`. The `concept` skill owns that format and numbering; this skill only decides, with the user, what to park there.
+
 ## Process
 
 ### 1. Gather context
 
 - Read the user's idea. List `agent-docs/plans/` to find the next number and to check whether this change already has a plan. If it does, this is a re-plan: see "Re-running on an existing plan".
+- List `agent-docs/concepts/` as well. If a concept relates to this idea, read it and tell the user, so earlier analysis gets reused instead of redone. If the user asks to plan from a concept ("plan concept 04"), that concept is the starting point: its "What we know", "Options considered" and "Open questions" seed the grilling, and its rejected options stay rejected unless the user reopens them.
 - Explore the codebase enough to ground your questions: the modules the change touches, existing patterns it should follow, how tests are run, and what data the affected code reads and writes. For a broad sweep, use an Explore subagent so file dumps stay out of your context.
 - Finding facts is your job. Never ask the user something you could look up in the code.
 
@@ -56,11 +59,17 @@ Ground the questions in what you found in the code ("auth lives in `src/auth/`; 
 - **No, outputs should stay the same** (a refactor, a dependency upgrade, a performance change). Ask one question only: how will we prove the outputs are unchanged? Usually by comparing against the current version on the test set.
 - **No data involved** (CI, tooling, docs, UI that doesn't touch data). Record "no data impact" as a decision and move on.
 
-Stop when no open questions are left. Summarize the decisions in a short numbered list and ask the user to confirm before you write any files. Writing first and asking later would bake guesses into the plan.
+**Park what doesn't belong in this change.** When an idea comes up that is out of scope, or a question needs more analysis than this session can give, don't squeeze it into the plan and don't let it disappear when the session ends. Ask whether to park it as a concept, with your recommendation, in the same Q/➡️ format. Parking keeps the plan small and the idea findable later. Only part of an idea may fit this change: plan that part and park the rest.
+
+Stop when no open questions are left. Summarize the decisions in a short numbered list, followed by the ideas to park as concepts, and ask the user to confirm before you write any files. Writing first and asking later would bake guesses into the plan.
 
 ### 3. Draft the plan
 
 Write `00-overview.md` and the stage files using the templates below. The overview starts with `status: draft` until the user approves it.
+
+Then handle concepts by invoking the `concept` skill, which owns their format and numbering:
+- For each idea the user agreed to park, have it write a concept file from what was discussed, and link that file from the overview's "Out (non-goals)" list.
+- If this plan was built from a concept, have it record this plan in the concept's `plans:` list and History, and set the concept to `planned` only if this plan covers all of it.
 
 How to cut stages:
 - Each stage is a vertical slice that leaves the system working and testable, rather than a horizontal layer ("all the database work"). A stage that can't be verified on its own will hide bugs until the end.
@@ -91,7 +100,7 @@ When the user approves, set the overview to `status: todo`.
 
 ### 6. Hand off
 
-End with the plan folder path, the stage list with each stage's status and blockers, and how to start implementing, for example: "implement stage 01 of agent-docs/plans/03-cloud-mask-v2".
+End with the plan folder path, the stage list with each stage's status and blockers, any concept files written or updated, and how to start implementing, for example: "implement stage 01 of agent-docs/plans/03-cloud-mask-v2".
 
 ## Templates
 
@@ -108,10 +117,11 @@ created: YYYY-MM-DD
 
 ## Goal
 Why this change exists and what it changes for its users. 2–4 sentences.
+If it comes from a concept: Built from [concept NN – <name>](../../concepts/NN-slug.md).
 
 ## Scope
 **In:** ...
-**Out (non-goals):** ...
+**Out (non-goals):** ... (parked ideas link to their concept, e.g. [concept 05](../../concepts/05-slug.md))
 
 ## Decisions
 1. <decision> (why: <one line>)
