@@ -1,6 +1,6 @@
 ---
 name: plan-change
-description: Plan a software change (a new feature, processing step or data product, a fix, a migration) before any code is written. Grill the user until every decision is settled, including how output quality will be measured when the change affects data, write a staged plan to agent-docs/plans/NN-slug/ (00-overview.md plus numbered stage files with todo/in-progress/done/cancelled status), then have two reviewer subagents (a skeptic and an engineer) critique it before the user approves. Ideas that don't belong in the change are parked as concepts in agent-docs/concepts/. Use this whenever the user wants to plan, scope, spec, design or write a PRD for a feature or change, says things like "let's plan X", "grill me on this", "plan this before we build it" or "break this into stages", or describes work too big to just start coding, even if they never say "plan". Not for implementing an existing plan.
+description: Plan a software change (a new feature, processing step or data product, a fix, a migration) before any code is written. Grill the user until every decision is settled, including how output quality will be measured when the change affects data, write a staged plan to agent-docs/plans/NN-slug/ (00-overview.md plus numbered stage files with todo/in-progress/done/cancelled status), then have two reviewer subagents (a skeptic and an engineer) critique it before the user approves. Ideas that don't belong in the change are parked as concepts in agent-docs/concepts/. Use this whenever the user wants to plan, scope, spec, design or write a PRD for a feature or change, says things like "let's plan X", "grill me on this", "plan this before we build it" or "break this into stages", or describes work too big to just start coding, even if they never say "plan". Not for implementing an existing plan: that is implement-change.
 ---
 
 # Plan a change
@@ -22,7 +22,7 @@ agent-docs/plans/
 
 - `NN` is the next free number after the highest existing folder (start at `01`), zero-padded to two digits. Slugs are short, lowercase, hyphenated.
 - Stage files are numbered in the order they should be implemented.
-- Statuses live in each file's frontmatter, so anyone (human or agent) can see progress at a glance and the implementation step can pick the next `todo` stage whose blockers are `done`.
+- Statuses live in each file's frontmatter, so anyone (human or agent) can see progress at a glance and `implement-change` can pick the next `todo` stage whose blockers are `done`.
 
 Ideas that come up while planning but aren't part of this change go to `agent-docs/concepts/NN-slug.md`. The `concept` skill owns that format and numbering; this skill only decides, with the user, what to park there.
 
@@ -100,7 +100,7 @@ When the user approves, set the overview to `status: todo`.
 
 ### 6. Hand off
 
-End with the plan folder path, the stage list with each stage's status and blockers, any concept files written or updated, and how to start implementing, for example: "implement stage 01 of agent-docs/plans/03-cloud-mask-v2".
+End with the plan folder path, the stage list with each stage's status and blockers, any concept files written or updated, and how to start implementing with the `implement-change` skill, one stage per run: `/implement-change 03-cloud-mask-v2` picks the next eligible stage, and `/implement-change 03-cloud-mask-v2 stage 02` builds a specific one.
 
 Offer to commit the plan folder and any concept files before implementation starts. Uncommitted files exist only in the current checkout, so other worktrees, branches and sessions would not see the plan. Later, each stage's status change belongs in the same commit as that stage's code, so `status: done` and the code that made it true land together.
 
@@ -192,6 +192,6 @@ When the plan folder already exists, update it rather than starting over. Humans
 
 - Keep every stage's `status`. Leave `done` and `cancelled` stages untouched.
 - Update `todo` and `in-progress` stages to match the new decisions.
-- Never delete a stage file. If a stage is no longer needed, set it to `cancelled` and add a one-line reason under Notes.
+- Never delete a stage file. If a stage is no longer needed, set it to `cancelled` and add a one-line reason under Notes. Then update the `blocked-by` of every stage that lists it: `implement-change` treats a cancelled blocker as never done.
 - Give new stages the next free number and express ordering through `blocked-by` instead of renumbering, because other files and commits may already refer to the existing numbers.
 - Grill only on what changed (including whether the change now affects data differently), run the two reviewers again, and add the outcome to the review log.
