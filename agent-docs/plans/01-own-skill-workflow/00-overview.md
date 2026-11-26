@@ -1,6 +1,6 @@
 ---
 change: Own skill workflow
-status: in-progress  # draft | todo | in-progress | done | cancelled
+status: done         # draft | todo | in-progress | done | cancelled
 created: 2026-11-25
 ---
 
@@ -86,3 +86,4 @@ Statuses live only in each stage file's frontmatter. They are not repeated here,
 - 2026-11-25 engineer: 10 findings plus 3 notes (applied: same dry-run, link-command, wording, parallelism, independence-check and step-3 findings as above; plan-change's "confirm before you write any files" becomes "any plan files"; `git init -b main`; side mission 01 notes its conflict with ADR 0003; no backticked `code-review` in `SKILL.md`. Not adopted: fast-forwarding `main` after stage 01, because Decision 12 switches the links after the merge, and the parking note covers the meantime. Commit the plan before stage 01: covered at hand-off)
 - 2026-11-25 user: concept files in other repos are parked as side mission 03 (move after merge); `CLAUDE.md` gets one line in stage 01. Plan approved.
 - 2026-11-26 user: removing Matt's skills is done by hand, not tracked as a side mission. Side mission `02-drop-matt-skills` was dropped before stage 01's commit, and `03-move-concepts-in-other-repos` became `02-move-concepts-in-other-repos`. Stage 01's file list and criteria were updated to match (small re-plan; reviewers not rerun).
+- 2026-11-26 user: stage 03 keeps "a smaller rename stays one ordinary stage" (fits Decision 8) and accepts the noted limit of the wide-refactor evidence; stage 04's reviewers stay read-and-search only; parked side mission `03-review-diff-test-coverage` and extended `01-parallel-stage-workers` with the missing review suggestion for parallel worktrees. Plan done.

@@ -112,7 +112,8 @@ End with:
 - the stage's outcome: `done` with its commit hash, or still `in-progress` and why;
 - the stages that can be started or resumed now, with the command to run next, for example `/implement-change 03-cloud-mask-v2`;
 - problems spotted in later stages (for example reference data that looks wrong), so the user can fix them before those stages start. Don't edit other stages' files;
-- terms that were missing from `GLOSSARY.md` or conflicted with it, so the user can settle them, for example with the `domain-docs` skill.
+- terms that were missing from `GLOSSARY.md` or conflicted with it, so the user can settle them, for example with the `domain-docs` skill;
+- once every stage of the plan is `done` or `cancelled`, a suggestion to review the whole branch for code standards and plan fit before merging, with `/review-diff main`.
 
 If several stages are eligible at once, say they can be built in parallel, each in its own worktree with the stage named explicitly. If this stage was the last one, say the plan is done.
 
