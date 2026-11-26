@@ -1,6 +1,6 @@
 ---
 name: plan-change
-description: Plan a software change (a new feature, processing step or data product, a fix, a migration) before any code is written. Grill the user until every decision is settled, including how output quality will be measured when the change affects data, write a staged plan to agent-docs/plans/NN-slug/ (00-overview.md plus numbered stage files with todo/in-progress/done/cancelled status), then have two reviewer subagents (a skeptic and an engineer) critique it before the user approves. Findings that don't belong in the change (bugs, features, improvements, ideas) are parked as side missions in agent-docs/side-missions/. Use this whenever the user wants to plan, scope, spec, design or write a PRD for a feature or change, says things like "let's plan X", "grill me on this", "plan this before we build it" or "break this into stages", or describes work too big to just start coding, even if they never say "plan". Not for implementing an existing plan: that is implement-change.
+description: Plan a software change (a new feature, processing step or data product, a fix, a migration) before any code is written. Grill the user until every decision is settled, including how output quality will be measured when the change affects data, keeping GLOSSARY.md and ADRs current, write a staged plan to agent-docs/plans/NN-slug/ (00-overview.md plus numbered stage files, each with a status), then have two reviewer subagents (a skeptic and an engineer) critique it before the user approves. Findings that don't belong in the change (bugs, features, improvements, ideas) are parked as side missions in agent-docs/side-missions/. Use this whenever the user wants to plan, scope, spec, design or write a PRD for a feature or change, says things like "let's plan X", "grill me on this", "plan this before we build it" or "break this into stages", or describes work too big to just start coding, even if they never say "plan". Not for implementing an existing plan: that is implement-change.
 ---
 
 # Plan a change
@@ -32,12 +32,15 @@ Bugs, features, improvements and ideas that come up while planning but aren't pa
 
 - Read the user's idea. List `agent-docs/plans/` to find the next number and to check whether this change already has a plan. If it does, this is a re-plan: see "Re-running on an existing plan".
 - List the open side missions in `agent-docs/side-missions/` as well. If one relates to this idea, read it and tell the user, so earlier analysis gets reused instead of redone. If the user asks to plan from a side mission ("plan from side mission 04-s1-fusion"), that side mission is the starting point: its "What we know", "Options considered" and "Open questions" seed the grilling, and its rejected options stay rejected unless the user reopens them.
+- Read the parts of `GLOSSARY.md` and `docs/adr/` that touch the change, if they exist, and use the glossary's terms in your questions and in the plan.
 - Explore the codebase enough to ground your questions: the modules the change touches, existing patterns it should follow, how tests are run, and what data the affected code reads and writes. For a broad sweep, use an Explore subagent so file dumps stay out of your context.
 - Finding facts is your job. Never ask the user something you could look up in the code.
 
 ### 2. Grill the user
 
 Interview the user until you share an understanding of the change. Think of it as a decision tree: each decision unlocks the ones that depend on it.
+
+Before the first round, invoke the `domain-docs` skill. Its rules hold for the whole grilling: it checks the terms used against the glossary, updates `GLOSSARY.md` as soon as a term is settled, and offers an ADR for a decision that passes its test. Its questions go into your rounds, in the same format. When a plan decision gets an ADR, the decision in the overview links to it.
 
 Work in rounds. Each round, ask every question whose prerequisites are already settled. A question that depends on an answer still open this round waits for a later round. Number the questions and give your recommended answer for each, worded so that "yes" accepts it:
 
@@ -51,7 +54,7 @@ Work in rounds. Each round, ask every question whose prerequisites are already s
 ❓ **Q2 – <title>**: ...
 ```
 
-Ground the questions in what you found in the code ("auth lives in `src/auth/`; reuse its session middleware?"). Areas worth covering, where they apply: user-visible behavior, scope and non-goals, data and interfaces, edge cases and errors, how each part gets tested, migration or rollout, and risks. Skip areas that don't apply. This is a conversation, not a form.
+Ground the questions in what you found in the code ("auth lives in `src/auth/`; reuse its session middleware?"). Areas worth covering, where they apply: user-visible behavior, scope and non-goals, data and interfaces, edge cases and errors, how each part gets tested (see test seams below), migration or rollout, and risks. Skip areas that don't apply. This is a conversation, not a form.
 
 **Always ask, in the first round, whether the change affects data.** Does it change what the pipeline or system produces: values, geometry, coverage, format or metadata? Give your recommended answer based on what you found in the code, but let the user decide, because only they know whether, say, a "small refactor" is expected to shift outputs. The answer decides the quality branch:
 
@@ -59,9 +62,11 @@ Ground the questions in what you found in the code ("auth lives in `src/auth/`; 
 - **No, outputs should stay the same** (a refactor, a dependency upgrade, a performance change). Ask one question only: how will we prove the outputs are unchanged? Usually by comparing against the current version on the test set.
 - **No data involved** (CI, tooling, docs, UI that doesn't touch data). Record "no data impact" as a decision and move on.
 
+**Settle the test seams before the stages.** A test seam is the place where tests hook into the code to check the change: a function, a CLI command, a pipeline step's inputs and outputs. Once the scope is settled, and before you draft any stage, propose the seams in a question: seams that already exist come first, then the highest point in the code that still sees the behaviour, and as few as possible, ideally one. The user confirms them. They go on the overview's `**Test seams:**` line, and each stage's "How to verify" names the seam it uses.
+
 **Park what doesn't belong in this change.** When a bug, feature, improvement or idea comes up that is out of scope, or a question needs more analysis than this session can give, don't squeeze it into the plan and don't let it disappear when the session ends. Ask whether to park it as a side mission, with your recommendation and a recommended `kind` (bug, feature, improvement or idea), in the same Q/➡️ format. Parking keeps the plan small and the idea findable later. Only part of an idea may fit this change: plan that part and park the rest.
 
-Stop when no open questions are left. Summarize the decisions in a short numbered list, followed by the items to park as side missions, and ask the user to confirm before you write any files. Writing first and asking later would bake guesses into the plan.
+Stop when no open questions are left. Summarize the decisions in a short numbered list, followed by the glossary terms added or changed and any ADRs written, then the items to park as side missions, and ask the user to confirm before you write any plan files. Writing first and asking later would bake guesses into the plan.
 
 ### 3. Draft the plan
 
@@ -74,6 +79,7 @@ Then handle side missions by invoking the `side-mission` skill, which owns their
 How to cut stages:
 - Each stage is a vertical slice that leaves the system working and testable, rather than a horizontal layer ("all the database work"). A stage that can't be verified on its own will hide bugs until the end.
 - Size each stage so one focused agent session can finish it. 2–6 stages is typical. If you need more than about 8, the work is probably several changes, so suggest splitting it.
+- **Wide refactors.** Use this cut only when a mechanical change, such as renaming or retyping something used all over the code, is too big for one stage to finish in a single commit with the tests passing, or when some callers live in code that can't change in the same commit. A smaller rename stays one ordinary stage. The cut has three kinds of stage. One stage adds the new form while the old one keeps working. Migrate stages, each blocked by that first stage, then move the callers over a batch at a time (for example one package or folder each, as much as one stage can handle); batches that can't keep the tests passing on their own merge with their neighbours into one stage. A last stage, blocked by every migrate stage, deletes the old form. When that last stage has to wait for code outside the repo, `blocked-by` can't express it: start its "What to build" with the condition, and tell the implementer to set the stage back to `todo` and stop if it isn't met yet.
 - Use `blocked-by` for the stages that really must come first, not as an automatic chain. Stages without blockers on each other can be built in parallel.
 - Name the existing files and modules the implementer should start from; the engineer reviewer checks they exist. Include code only when it encodes a decision prose can't, such as a schema or a function signature.
 - For a change that affects data, each stage's "How to verify" names the quality checks from the overview that prove the stage works, and the test data they run on.
@@ -82,8 +88,8 @@ How to cut stages:
 
 Launch two reviewer subagents in parallel, each with a fresh context. Give them the plan folder path, the repo root and their role, but not your own opinion of the plan, so their read is independent. Tell them to report findings and not to edit any files.
 
-- **Skeptic**: finds gaps. Missing requirements, unhandled edge cases and error paths, acceptance criteria or quality thresholds that are vague or can't be measured, a change that affects data but has a missing or hand-wavy Quality section, contradictions between the overview and the stages, and scope creep beyond the agreed decisions.
-- **Engineer**: checks the plan against the actual code. Do the referenced files and modules exist and work the way the plan assumes? Is the stage order right? Can each stage be built and tested on its own? Do the reference and test data the plan relies on exist, and can the code reach them? Are there hidden migrations, breaking changes or callers the plan missed? Does the codebase already have something that makes a step simpler?
+- **Skeptic**: finds gaps. Missing requirements, unhandled edge cases and error paths, acceptance criteria or quality thresholds that are vague or can't be measured, a change that affects data but has a missing or hand-wavy Quality section, contradictions between the overview and the stages, test seams that are missing or that the stages' "How to verify" don't use, and scope creep beyond the agreed decisions.
+- **Engineer**: checks the plan against the actual code. Do the referenced files and modules exist and work the way the plan assumes? Is the stage order right? Can each stage be built and tested on its own? Do the reference and test data the plan relies on exist, and can the code reach them? Are there hidden migrations, breaking changes or callers the plan missed? Do the test seams exist in the code, or does a stage create them? Does the codebase already have something that makes a step simpler?
 
 Ask each reviewer to return a list of findings, each with: severity (blocker / major / minor), the file it concerns, the problem, and a suggested fix.
 
@@ -94,15 +100,15 @@ If you can't launch subagents, do both reviews yourself one after the other, re-
 - Check each finding against the code and drop the ones that are wrong. Say briefly which ones you dropped and why.
 - Apply obvious minor fixes directly and list them.
 - Put the rest to the user as one more grilling round, in the same Q/➡️ format, with your recommended fix for each.
-- Update the files with the outcome and add an entry to the overview's review log.
+- Update the files with the outcome and add an entry to the overview's review log. If a decision that has an ADR, or a term already in `GLOSSARY.md`, changes, update those too, through `domain-docs`.
 
 When the user approves, set the overview to `status: todo`.
 
 ### 6. Hand off
 
-End with the plan folder path, the stage list with each stage's status and blockers, any side-mission files written or updated, and how to start implementing with the `implement-change` skill, one stage per run: `/implement-change 03-cloud-mask-v2` picks the next eligible stage, and `/implement-change 03-cloud-mask-v2 stage 02` builds a specific one.
+End with the plan folder path, the stage list with each stage's status and blockers, any side-mission files written or updated, the glossary terms and ADRs written during planning, and how to start implementing with the `implement-change` skill, one stage per run: `/implement-change 03-cloud-mask-v2` picks the next eligible stage, and `/implement-change 03-cloud-mask-v2 stage 02` builds a specific one.
 
-Offer to commit the plan folder and any side-mission files before implementation starts. Uncommitted files exist only in the current checkout, so other worktrees, branches and sessions would not see the plan. Later, each stage's status change belongs in the same commit as that stage's code, so `status: done` and the code that made it true land together.
+Offer to commit the plan folder, any side-mission files and the glossary and ADR changes before implementation starts. Uncommitted files exist only in the current checkout, so other worktrees, branches and sessions would not see the plan. Later, each stage's status change belongs in the same commit as that stage's code, so `status: done` and the code that made it true land together.
 
 ## Templates
 
@@ -127,10 +133,12 @@ If it comes from a side mission: Built from [side mission NN-slug](../../side-mi
 
 ## Decisions
 1. <decision> (why: <one line>)
-2. ...
+2. <decision> (why: <one line>) (ADR: [NNNN](../../../docs/adr/NNNN-slug.md), when the decision has one)
 
 ## Quality
 Affects data: yes | no, outputs unchanged | no data involved
+
+**Test seams:** <where the tests hook into the code to check this change, e.g. `process_scene()`, or the CLI run on the test set>
 
 If yes:
 
@@ -180,7 +188,7 @@ The end-to-end behavior this slice adds. Name the files and modules to start fro
 - [ ] ...
 
 ## How to verify
-The tests to run or write, and any manual check that proves this stage works. For a change that affects data: which quality checks from the overview, on which test data, with which threshold.
+The tests to run or write, at which test seam from the overview, and any manual check that proves this stage works. For a change that affects data: which quality checks from the overview, on which test data, with which threshold.
 
 ## Notes
 Decisions from the overview that apply here (e.g. "Decision 3"), and gotchas found while exploring.
@@ -194,4 +202,4 @@ When the plan folder already exists, update it rather than starting over. Humans
 - Update `todo` and `in-progress` stages to match the new decisions.
 - Never delete a stage file. If a stage is no longer needed, set it to `cancelled` and add a one-line reason under Notes. Then update the `blocked-by` of every stage that lists it: `implement-change` treats a cancelled blocker as never done.
 - Give new stages the next free number and express ordering through `blocked-by` instead of renumbering, because other files and commits may already refer to the existing numbers.
-- Grill only on what changed (including whether the change now affects data differently), run the two reviewers again, and add the outcome to the review log.
+- Grill only on what changed (including whether the change now affects data differently), with `domain-docs` invoked as in step 2, so ADRs and glossary terms that the change touches stay true. Run the two reviewers again, and add the outcome to the review log.
