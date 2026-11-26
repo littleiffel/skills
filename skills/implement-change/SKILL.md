@@ -51,7 +51,7 @@ For logic and data processing: for each acceptance criterion, write the test tha
 Stay inside the stage. While you build:
 
 - **Deviations.** If the plan's details don't hold (a file it names doesn't exist, an approach doesn't fit the code), take the smallest path that keeps the plan's decisions, acceptance criteria and quality thresholds intact, and log it in the stage file under `## Deviations`. If no such path exists, because the work would break a decision, a criterion or a threshold, go to step 8 and explain the conflict there, with your recommended fix.
-- **Ideas outside the stage.** When an improvement or idea comes up that isn't part of this stage, ask once, with your recommendation, whether to park it as a concept. If the user agrees, invoke the `concept` skill to write it. It never goes into this stage's diff.
+- **Ideas outside the stage.** When a bug, feature, improvement or idea comes up that isn't part of this stage, ask once, with your recommendation and a recommended `kind`, whether to park it as a side mission. If the user agrees, invoke the `side-mission` skill to write it. It never goes into this stage's diff.
 
 ### 5. Verify
 
@@ -93,8 +93,8 @@ Add one line about the review outcome to `## Result`.
 
 ### 7. Commit
 
-- Show the user a short summary: the stage, the files changed, the key verification results, deviations, the review outcome, any concepts parked, and the proposed commit message `<plan folder> stage NN: <stage title>`, for example `03-cloud-mask-v2 stage 02: shadow mask`. Questions from step 6 whose answers don't change this stage's work can go in the same message.
-- Commit only after the user says yes. Only then set the stage's `status: done`, and the overview's `status: done` if every stage is now `done` or `cancelled`. Until then the stage stays `in-progress`, so if the run ends without a yes, the next run resumes it. Make one commit holding the stage's code and tests, the stage file, the overview if it changed, and any concept files parked during this run. If the user wants changes first, make them, run step 5 again, and show the summary again.
+- Show the user a short summary: the stage, the files changed, the key verification results, deviations, the review outcome, any side missions parked, and the proposed commit message `<plan folder> stage NN: <stage title>`, for example `03-cloud-mask-v2 stage 02: shadow mask`. Questions from step 6 whose answers don't change this stage's work can go in the same message.
+- Commit only after the user says yes. Only then set the stage's `status: done`, and the overview's `status: done` if every stage is now `done` or `cancelled`. Until then the stage stays `in-progress`, so if the run ends without a yes, the next run resumes it. Make one commit holding the stage's code and tests, the stage file, the overview if it changed, and any side-mission files parked during this run. If the user wants changes first, make them, run step 5 again, and show the summary again.
 
 ### 8. When the stage can't be finished
 

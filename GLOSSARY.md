@@ -30,9 +30,9 @@ _Avoid_: drift, plan change
 Updating an existing plan when its decisions no longer hold, keeping every stage's status.
 _Avoid_: rewrite, new plan
 
-**Concept**:
-An idea or analysis worth keeping that nobody has committed to building yet.
-_Avoid_: backlog item, draft plan
+**Side mission**:
+Work found along the way that the current context doesn't need to solve: a bug, feature, improvement or idea.
+_Avoid_: concept, backlog item, ticket
 
 ### Quality
 

@@ -1,6 +1,6 @@
 ---
 change: Own skill workflow
-status: todo         # draft | todo | in-progress | done | cancelled
+status: in-progress  # draft | todo | in-progress | done | cancelled
 created: 2026-11-25
 ---
 
@@ -20,12 +20,12 @@ Make this repo's skills independent of Matt Pocock's skill pack while taking ove
 - One line in `CLAUDE.md`: its issue tracker is for Matt's skills only
 
 **Out (non-goals):**
-- Uninstalling Matt's skills and removing `docs/agents/` and the "Agent skills" section of `CLAUDE.md`: parked as side mission [02-drop-matt-skills](../../side-missions/02-drop-matt-skills.md), written in stage 01.
+- Uninstalling Matt's skills and removing `docs/agents/` and the "Agent skills" section of `CLAUDE.md`: done by hand, outside this plan and without a side mission.
 - Plan stages as GitHub issues (Orca Tasks): rejected, recorded in ADR 0002.
 - A `tdd` skill: `implement-change` already builds test-first.
 - Multi-context glossaries (`GLOSSARY-MAP.md`).
 - Changing `implement-change`'s reviewer.
-- Moving concept files in other repos (`~/code/weo/airflow-dags` and its worktrees, `geo-operations/flatworm`): parked as side mission [03-move-concepts-in-other-repos](../../side-missions/03-move-concepts-in-other-repos.md), written in stage 01.
+- Moving concept files in other repos (`~/code/weo/airflow-dags` and its worktrees, `geo-operations/flatworm`): parked as side mission [02-move-concepts-in-other-repos](../../side-missions/02-move-concepts-in-other-repos.md), written in stage 01.
 
 ## Decisions
 1. No data impact: only skill instructions and docs change. (why: nothing produces data here)
@@ -36,10 +36,10 @@ Make this repo's skills independent of Matt Pocock's skill pack while taking ove
 6. `implement-change` only reads the glossary and ADRs, uses glossary terms in code, tests and commit messages, and reports missing or conflicting terms in its hand-off instead of editing `GLOSSARY.md`. Its reviewer stays as it is. (why: changing the language is a planning decision)
 7. New `review-diff [ref]` skill: ref defaults to `main`; reviews the working tree against the merge-base with the ref, including uncommitted and untracked files; two reviewer subagents in parallel, Standards (documented standards, consistency with surrounding code, own code-smell list, small and readable) and Plan (stage criteria and scope); report only, never edits; small cleanups inside touched code are suggestions, bigger ones are offered as side missions. `implement-change` suggests `/review-diff main` after a plan's last stage. (why: style and smell review across a whole branch, without slowing each stage)
 8. plan-change asks for test seams before writing stages (existing seams first, as high as possible, as few as possible) and records them on a `**Test seams:**` line under Quality. Wide refactors are cut expand → migrate in batches → contract; batches that can't keep tests passing alone merge into one stage. (why: borrowed from Matt's to-spec and to-tickets, without his integration branch)
-9. plan-change's description keeps "grill me on this". (why: the overlap with Matt's auto-starting `grilling` ends with side mission 02)
+9. plan-change's description keeps "grill me on this". (why: the overlap with Matt's auto-starting `grilling` lasts only until his skills are removed by hand)
 10. No `tdd` skill. (why: implement-change already writes the failing test first)
 11. Each stage is verified by a dry run plus text searches (see Quality). (why: skills are prose; running them is the only end-to-end check)
-12. Concept 01 is moved to side mission 01, `skills/concept` is deleted, the glossary's "Concept" becomes "Side mission", and ADR 0001's link is fixed. The skill links in `~/.claude/skills/` are switched by hand after merge to `main`. Concept files in other repos are moved later (side mission 03). (why: the links point at the main checkout; the move is a one-off, so the skills don't learn to read old concept folders)
+12. Concept 01 is moved to side mission 01, `skills/concept` is deleted, the glossary's "Concept" becomes "Side mission", and ADR 0001's link is fixed. The skill links in `~/.claude/skills/` are switched by hand after merge to `main`. Concept files in other repos are moved later (side mission 02-move-concepts-in-other-repos). (why: the links point at the main checkout; the move is a one-off, so the skills don't learn to read old concept folders)
 13. `CLAUDE.md` gets one line saying its GitHub issue tracker is for Matt's skills only, and this repo's skills keep plans and side missions in files (ADR 0002). (why: every session here loads it; side mission 02 removes the section later)
 
 ## Quality
@@ -60,7 +60,7 @@ grep -rnE '`/?(grilling|grill-with-docs|grill-me|domain-modeling|code-review|to-
 **Description length (every stage):** each `description:` in `skills/*/SKILL.md` stays at or below 1024 characters: `for f in skills/*/SKILL.md; do sed -n 's/^description: //p' $f | wc -c; done`.
 
 ## Risks
-- Matt's `grilling`, `domain-modeling` and `code-review` start automatically and overlap with plan-change, `domain-docs` and `review-diff` while installed. (mitigation: they write the same formats, so harm is small; side mission 02 removes them)
+- Matt's `grilling`, `domain-modeling` and `code-review` start automatically and overlap with plan-change, `domain-docs` and `review-diff` while installed. (mitigation: they write the same formats, so harm is small; typing the skill name avoids a wrong pick; the overlap ends when Matt's skills are removed by hand)
 - The links in `~/.claude/skills/` point at `/home/thierry/claude-general-env/skills/` (the main checkout), so the new skills aren't active until merge, and removing the `concept` link early breaks plan-change on `main`. (mitigation: switch links only after merge; whichever stage finishes the plan lists these commands in its hand-off:)
   ```sh
   ln -s /home/thierry/claude-general-env/skills/{side-mission,domain-docs,review-diff} ~/.claude/skills/
@@ -85,3 +85,4 @@ Statuses live only in each stage file's frontmatter. They are not repeated here,
 - 2026-11-25 skeptic: 16 findings (applied: dry-run protocol with worktree skill paths, user brief instead of script and ordered list of reads and writes; link commands written into Risks and the last stage's notes; parking note while the installed implement-change is the old one; review-diff writes only side-mission files after a yes; "this concept" wording in the moved file; description-length check; stage 02 reports new terms instead of adding them; wider independence check; parallelism note; write-order check in stage 03; review-diff error paths and plan detection; named steps and "last stage" defined; `kind` passed by the caller; rejected-without-reason test; scratchpad instead of `mktemp -d`. Dropped: subagents may not nest, because stage 04 already allows one subagent to play both reviewers)
 - 2026-11-25 engineer: 10 findings plus 3 notes (applied: same dry-run, link-command, wording, parallelism, independence-check and step-3 findings as above; plan-change's "confirm before you write any files" becomes "any plan files"; `git init -b main`; side mission 01 notes its conflict with ADR 0003; no backticked `code-review` in `SKILL.md`. Not adopted: fast-forwarding `main` after stage 01, because Decision 12 switches the links after the merge, and the parking note covers the meantime. Commit the plan before stage 01: covered at hand-off)
 - 2026-11-25 user: concept files in other repos are parked as side mission 03 (move after merge); `CLAUDE.md` gets one line in stage 01. Plan approved.
+- 2026-11-26 user: removing Matt's skills is done by hand, not tracked as a side mission. Side mission `02-drop-matt-skills` was dropped before stage 01's commit, and `03-move-concepts-in-other-repos` became `02-move-concepts-in-other-repos`. Stage 01's file list and criteria were updated to match (small re-plan; reviewers not rerun).

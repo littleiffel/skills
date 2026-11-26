@@ -1,13 +1,14 @@
 ---
-status: parked
+kind: idea           # bug | feature | improvement | idea
+status: open         # open | planned | done | rejected
 created: 2026-11-24
-updated: 2026-11-24
+updated: 2026-11-25
 plans: []
 ---
 
 # Parallel stage workers
 
-## Idea
+## Summary
 Let `implement-change` fan out stages that don't block each other to Orca worker agents (the `orchestration` skill), each working in its own worktree and branch, and then collect their results.
 
 ## Why it matters
@@ -16,10 +17,10 @@ A plan with independent stages could finish in one go, not one session per stage
 ## What we know
 - `plan-change` keeps stage statuses only in the stage files, so branches working on different stages in parallel don't conflict on the overview (`skills/plan-change/SKILL.md`, "Stages").
 - The `orchestration` skill (`~/.agents/skills/orchestration`) already runs Orca workers with task graphs and worktrees.
-- Version 1 of `implement-change` runs one stage per run and makes one commit per stage. Until this concept is built, you can run parallel stages by starting sessions in separate worktrees yourself.
+- Version 1 of `implement-change` runs one stage per run and makes one commit per stage. Until this side mission is built, you can run parallel stages by starting sessions in separate worktrees yourself.
 
 ## Options considered
-- Orca workers through the `orchestration` skill: still open.
+- Orca workers through the `orchestration` skill: still open, but it conflicts with [ADR 0003](../../docs/adr/0003-no-dependencies-on-other-skill-packs.md) (this repo's skills don't call other skill packs). Taking it needs that ADR reopened, or a worker skill of this repo's own.
 - Running sessions in separate worktrees by hand: the stopgap for now.
 
 ## Open questions
@@ -32,3 +33,4 @@ Once `implement-change` version 1 has been used on a real plan, read the `orches
 
 ## History
 - 2026-11-24: created, split off while designing `implement-change` (grilling Q6).
+- 2026-11-25: moved from concept 01 (plan `01-own-skill-workflow`, stage 01); noted the conflict with ADR 0003.

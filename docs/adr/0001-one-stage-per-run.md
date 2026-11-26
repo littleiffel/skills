@@ -5,7 +5,7 @@
 ## Considered Options
 
 - **Loop through all remaining stages in one run**: faster, but context keeps piling up over a long session, and a mistake in an early stage only shows at the end. Rejected for now.
-- **Separate commits per stage (a "claim" commit for `in-progress`, then the work)**: other worktrees would see which stage is taken, but stages would no longer map one to one onto commits. Rejected. Claiming is an open question in [concept 01](../../agent-docs/concepts/01-parallel-stage-workers.md).
+- **Separate commits per stage (a "claim" commit for `in-progress`, then the work)**: other worktrees would see which stage is taken, but stages would no longer map one to one onto commits. Rejected. Claiming is an open question in [side mission 01-parallel-stage-workers](../../agent-docs/side-missions/01-parallel-stage-workers.md).
 
 ## Consequences
 
