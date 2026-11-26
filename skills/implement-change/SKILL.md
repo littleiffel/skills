@@ -51,6 +51,7 @@ For logic and data processing: for each acceptance criterion, write the test tha
 Stay inside the stage. While you build:
 
 - **Deviations.** If the plan's details don't hold (a file it names doesn't exist, an approach doesn't fit the code), take the smallest path that keeps the plan's decisions, acceptance criteria and quality thresholds intact, and log it in the stage file under `## Deviations`. If no such path exists, because the work would break a decision, a criterion or a threshold, go to step 8 and explain the conflict there, with your recommended fix.
+- **Glossary terms.** Name things in code, tests and the commit message with the terms in `GLOSSARY.md`. Don't edit `GLOSSARY.md` or write ADRs: changing the project's language or its settled decisions is a planning decision. Note any term that is missing from it or conflicts with it, for the hand-off.
 - **Ideas outside the stage.** When a bug, feature, improvement or idea comes up that isn't part of this stage, ask once, with your recommendation and a recommended `kind`, whether to park it as a side mission. If the user agrees, invoke the `side-mission` skill to write it. It never goes into this stage's diff.
 
 ### 5. Verify
@@ -110,7 +111,8 @@ If the user re-plans now, `plan-change`'s commit may include this stage file wit
 End with:
 - the stage's outcome: `done` with its commit hash, or still `in-progress` and why;
 - the stages that can be started or resumed now, with the command to run next, for example `/implement-change 03-cloud-mask-v2`;
-- problems spotted in later stages (for example reference data that looks wrong), so the user can fix them before those stages start. Don't edit other stages' files.
+- problems spotted in later stages (for example reference data that looks wrong), so the user can fix them before those stages start. Don't edit other stages' files;
+- terms that were missing from `GLOSSARY.md` or conflicted with it, so the user can settle them, for example with the `domain-docs` skill.
 
 If several stages are eligible at once, say they can be built in parallel, each in its own worktree with the stage named explicitly. If this stage was the last one, say the plan is done.
 

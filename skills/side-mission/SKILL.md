@@ -51,9 +51,9 @@ When another skill (such as `plan-change`, `implement-change` or `review-diff`) 
 
 1. Read the side-mission file and any plans in its `plans:` list.
 2. Tell the user in a few lines where it stands: the summary, what is known, what is still open, and the "Resume here" step.
-3. Continue the work with the user. Finding facts in the code, data or docs is your job, so use subagents for broad searches instead of asking the user.
+3. Continue the work with the user. Finding facts in the code, data or docs is your job, so use subagents for broad searches instead of asking the user. When the work settles a term, or a decision that may deserve an ADR (the `domain-docs` skill has the test), invoke `domain-docs`, so it lands in `GLOSSARY.md` or `docs/adr/` and not only in this file.
 4. Write findings into the file as you go, not only at the end. Sessions end without warning and context gets compacted, and anything not written down is lost, which is the very problem side missions exist to solve.
-5. Before you stop, update "Resume here" with the next concrete step, update `updated:`, and add a History line summarizing the session.
+5. Before you stop, update "Resume here" with the next concrete step, update `updated:`, and add a History line summarizing the session, naming any glossary terms and ADRs written.
 
 If the work shows the side mission is ready to build, suggest `/plan-change from side mission NN-slug`. Planning is that skill's job. If it is small enough to fix directly, fix it with the user and close it as `done`.
 
